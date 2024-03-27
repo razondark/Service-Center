@@ -1,4 +1,7 @@
 
+using Service_Center_Backend.Context;
+using Service_Center_Backend.Services;
+
 namespace Service_Center_Backend
 {
 	public class Program
@@ -14,6 +17,10 @@ namespace Service_Center_Backend
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
 
+			builder.Services.AddDbContext<ServiceCenterContext>();
+
+			builder.Services.AddScoped<IAccountService, AccountService>();
+
 			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
@@ -24,10 +31,7 @@ namespace Service_Center_Backend
 			}
 
 			app.UseHttpsRedirection();
-
 			app.UseAuthorization();
-
-
 			app.MapControllers();
 
 			app.Run();
