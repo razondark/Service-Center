@@ -1,25 +1,20 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
-using NuGet.Protocol;
 using Service_Center_Backend.Context;
 using Service_Center_Backend.Models;
-using Service_Center_Backend.Web.Dto;
 using Service_Center_Backend.Web.Dto.Authentication;
-using Service_Center_Backend.Web.Handlers;
+using Service_Center_Backend.Web.Dto.Handlers;
+using Service_Center_Backend.Web.Dto.Response;
 using System.Security.Cryptography;
-using System.Security.Principal;
 using System.Text;
 
 namespace Service_Center_Backend.Services.Implements
 {
-    public class AccountServiceImplements : IAccountService
+    public class AccountServiceImplement : IAccountService
     {
         private readonly ServiceCenterContext _context;
 
-        public AccountServiceImplements(ServiceCenterContext context)
+        public AccountServiceImplement(ServiceCenterContext context)
         {
             _context = context;
         }

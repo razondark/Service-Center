@@ -20,7 +20,10 @@ namespace Service_Center_Backend
 
 			builder.Services.AddDbContext<ServiceCenterContext>();
 
-			builder.Services.AddScoped<IAccountService, AccountServiceImplements>();
+			builder.Services.AddScoped<IAccountService, AccountServiceImplement>();
+			builder.Services.AddScoped<IClientService, ClientServiceImplement>();
+			builder.Services.AddScoped<IDeviceService, DeviceServiceImplement>();
+			builder.Services.AddScoped<IEquipmentHandoverReceipt, EquipmentHandoverReceiptImplement>();
 
 			var app = builder.Build();
 
