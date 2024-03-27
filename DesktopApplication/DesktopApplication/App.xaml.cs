@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace CourseProject
+namespace DesktopApplication
 {
 	/// <summary>
 	/// Interaction logic for App.xaml
