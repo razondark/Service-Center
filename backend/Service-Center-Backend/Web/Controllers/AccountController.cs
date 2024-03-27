@@ -2,6 +2,7 @@
 using Service_Center_Backend.Models;
 using Service_Center_Backend.Services;
 using Service_Center_Backend.Web.Dto;
+using Service_Center_Backend.Web.Dto.Authentication;
 
 namespace Service_Center_Backend.Web.Controllers
 {
@@ -28,10 +29,10 @@ namespace Service_Center_Backend.Web.Controllers
 			return await _accountService.GetAccountById(id);
 		}
 
-		[HttpGet("login")]
-		public async Task<IActionResult> GetAccountByLoginAndPassword(string login, string password)
+		[HttpPost("login")]
+		public async Task<IActionResult> Login([FromBody] AuthenticationRequest loginRequest)
 		{
-			return await _accountService.GetAccountByLoginAndPassword(login, password);
+			return await _accountService.Login(loginRequest);
 		}
 
 		[HttpPost("create")]

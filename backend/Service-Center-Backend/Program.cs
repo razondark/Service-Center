@@ -1,10 +1,11 @@
 
 using Service_Center_Backend.Context;
 using Service_Center_Backend.Services;
+using Service_Center_Backend.Services.Implements;
 
 namespace Service_Center_Backend
 {
-	public class Program
+    public class Program
 	{
 		public static void Main(string[] args)
 		{
@@ -19,7 +20,7 @@ namespace Service_Center_Backend
 
 			builder.Services.AddDbContext<ServiceCenterContext>();
 
-			builder.Services.AddScoped<IAccountService, AccountService>();
+			builder.Services.AddScoped<IAccountService, AccountServiceImplements>();
 
 			var app = builder.Build();
 
