@@ -71,7 +71,7 @@ namespace Service_Center_Backend.Services.Implements
 				return new NotFoundObjectResult(new NotFoundExceptionHandler("Клиенты не найдены"));
 			}
 
-			return new OkObjectResult(new ClientsResponse(ClientMapper.ToDto(clients)));
+			return new OkObjectResult(ClientMapper.ToDto(clients));
 		}
 
 		public async Task<IActionResult> GetClientById(int id)

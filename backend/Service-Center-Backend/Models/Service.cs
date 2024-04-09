@@ -13,5 +13,5 @@ public partial class Service
 
     public decimal Cost { get; set; }
 
-    public virtual ICollection<ServiceWork> IdServiceWorks { get; set; } = new List<ServiceWork>();
+    public virtual ICollection<ServiceWorkDto> IdServiceWorks { get; set; } = new List<ServiceWorkDto>();
 }

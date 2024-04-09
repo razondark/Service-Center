@@ -24,6 +24,7 @@ namespace Service_Center_Backend
 			builder.Services.AddScoped<IClientService, ClientServiceImplement>();
 			builder.Services.AddScoped<IDeviceService, DeviceServiceImplement>();
 			builder.Services.AddScoped<IEquipmentHandoverReceipt, EquipmentHandoverReceiptImplement>();
+			builder.Services.AddScoped<IEmployeeService, EmployeeServiceImplement>();
 
 			var app = builder.Build();
 

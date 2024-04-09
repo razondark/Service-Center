@@ -13,5 +13,5 @@ public partial class DevicePartUsed
 
     public virtual DevicePart IdDevicePartNavigation { get; set; } = null!;
 
-    public virtual ServiceWork IdServiceWorkNavigation { get; set; } = null!;
+    public virtual ServiceWorkDto IdServiceWorkNavigation { get; set; } = null!;
 }
