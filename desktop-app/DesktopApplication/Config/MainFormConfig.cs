@@ -16,6 +16,7 @@ using System.Windows.Automation.Provider;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace DesktopApplication.Config
@@ -65,6 +66,213 @@ namespace DesktopApplication.Config
 					}
 				}
 			}
+		}
+
+		public Window CreateEditWindow(T dto)
+		{
+			Type type = dto!.GetType();
+			var textBoxesDictionary = new Dictionary<TextBox, PropertyInfo>();
+
+			var createWindow = new Window
+			{
+				Title = "Редактирование",
+				WindowStyle = WindowStyle.None,
+				Style = (Style)Application.Current.Resources["dialogWindow"]
+			};
+
+			createWindow.MouseDown += (sender, e) =>
+			{
+				if (e.ChangedButton == MouseButton.Left)
+				{
+					createWindow.DragMove();
+				}
+			};
+
+			var stackPanel = new StackPanel();
+			
+			// add elems and data
+			foreach (var property in type!.GetProperties())
+			{
+				var displayNameAttribute = property.GetCustomAttribute<DisplayNameAttribute>();
+				var displayName = displayNameAttribute?.DisplayName ?? property.Name;
+
+				var label = new Label
+				{
+					Content = displayName,
+				};
+
+				var textBox = new TextBox
+				{
+					Text = property.GetValue(dto)!.ToString(),
+					Width = 200,
+					Height = 30,
+					Margin = new Thickness(10),
+					VerticalAlignment = VerticalAlignment.Center,
+					HorizontalAlignment = HorizontalAlignment.Center
+				};
+
+				if (property.Name.Equals("Id"))
+				{
+					textBox.IsReadOnly = true;
+					textBox.Background = Brushes.LightGray;
+				}
+
+				textBoxesDictionary.Add(textBox, property);
+
+				stackPanel.Children.Add(label);
+				stackPanel.Children.Add(textBox);
+			}
+
+			var okButton = new Button
+			{
+				Content = "Изменить",
+				Width = 60,
+				Height = 30,
+				Margin = new Thickness(10),
+				VerticalAlignment = VerticalAlignment.Bottom,
+				HorizontalAlignment = HorizontalAlignment.Right
+			};
+
+			okButton.Click += async (sender, e) =>
+			{
+				// update dto data
+				foreach (var pair in textBoxesDictionary)
+				{
+					string newValue = pair.Key.Text;
+					pair.Value.SetValue(dto, Convert.ChangeType(newValue, pair.Value.PropertyType));
+				}
+
+				await _dataService.UpdateAsync(dto);
+
+				createWindow.Close();
+				FillDataGridData();
+			};
+
+			var cancelButton = new Button
+			{
+				Content = "Отмена",
+				Width = 60,
+				Height = 30,
+				Margin = new Thickness(10),
+				VerticalAlignment = VerticalAlignment.Bottom,
+				HorizontalAlignment = HorizontalAlignment.Left
+			};
+
+			cancelButton.Click += (sender, e) =>
+			{
+				createWindow.Close();
+			};
+
+
+			stackPanel.Children.Add(cancelButton);
+			stackPanel.Children.Add(okButton);
+
+			createWindow.Content = stackPanel;
+
+			return createWindow;
+		}
+
+		public Window CreateAddWindow(T dto)
+		{
+			Type type = dto!.GetType();
+			var textBoxesDictionary = new Dictionary<TextBox, PropertyInfo>();
+
+			var editWindow = new Window
+			{
+				Title = "Добавление",
+				//Width = 600,
+				//Height = 600,
+				WindowStyle = WindowStyle.None,
+				AllowsTransparency = true,
+				Style = (Style)Application.Current.Resources["dialogWindow"]
+			};
+
+			editWindow.MouseDown += (sender, e) =>
+			{
+				if (e.ChangedButton == MouseButton.Left)
+				{
+					editWindow.DragMove();
+				}
+			};
+
+			var stackPanel = new StackPanel();
+
+			// add elems and data
+			foreach (var property in type!.GetProperties())
+			{
+				if (property.Name.Equals("Id"))
+				{
+					continue;
+				}
+
+				var displayNameAttribute = property.GetCustomAttribute<DisplayNameAttribute>();
+				var displayName = displayNameAttribute?.DisplayName ?? property.Name;
+
+				var label = new Label
+				{
+					Content = displayName,
+				};
+
+				var textBox = new TextBox
+				{
+					Width = 200,
+					Height = 30,
+					Margin = new Thickness(10),
+					VerticalAlignment = VerticalAlignment.Center,
+					HorizontalAlignment = HorizontalAlignment.Center
+				};
+
+				textBoxesDictionary.Add(textBox, property);
+
+				stackPanel.Children.Add(label);
+				stackPanel.Children.Add(textBox);
+			}
+
+			var okButton = new Button
+			{
+				Content = "Добавить",
+				Margin = new Thickness(10),
+				VerticalAlignment = VerticalAlignment.Bottom,
+				HorizontalAlignment = HorizontalAlignment.Right,
+			};
+
+			okButton.Click += async (sender, e) =>
+			{
+				// update dto data
+				foreach (var pair in textBoxesDictionary)
+				{
+					string newValue = pair.Key.Text;
+					pair.Value.SetValue(dto, Convert.ChangeType(newValue, pair.Value.PropertyType));
+				}
+				
+				await _dataService.CreateAsync(dto);
+
+				editWindow.Close();
+				FillDataGridData();
+			};
+
+			var cancelButton = new Button
+			{
+				Content = "Отмена",
+				Width = 60,
+				Height = 30,
+				Margin = new Thickness(10),
+				VerticalAlignment = VerticalAlignment.Bottom,
+				HorizontalAlignment = HorizontalAlignment.Left
+			};
+
+			cancelButton.Click += (sender, e) =>
+			{
+				editWindow.Close();
+			};
+
+
+			stackPanel.Children.Add(cancelButton);
+			stackPanel.Children.Add(okButton);
+
+			editWindow.Content = stackPanel;
+
+			return editWindow;
 		}
 
 		private void TabButton_Click(object sender, RoutedEventArgs e)
@@ -121,7 +329,7 @@ namespace DesktopApplication.Config
 			var buttons = _mainWindow.dataGrid.FindName("actionButtons") as DataGridTemplateColumn;
 			_mainWindow.dataGrid.Columns.Clear();
 
-			// Получаем первый элемент коллекции, чтобы определить его тип
+			// получаем первый элемент коллекции, чтобы определить его тип
 			var firstElement = elements.FirstOrDefault();
 			if (firstElement == null)
 				return;
@@ -141,7 +349,7 @@ namespace DesktopApplication.Config
 					Width = new DataGridLength(1, DataGridLengthUnitType.Star)
 				};
 
-				if (property.Name == "Id")
+				if (property.Name.Equals("Id"))
 				{
 					column.Width = new DataGridLength(0.5, DataGridLengthUnitType.Star);
 				}
@@ -151,8 +359,12 @@ namespace DesktopApplication.Config
 
 			_mainWindow.dataGrid.Columns.Add(AddDataGridRowsButtons(buttons));
 
+			elements = elements.OrderBy(e => (int)e.GetType().GetProperty("Id").GetValue(e));
+
 			var collection = new ObservableCollection<object>(elements);
 			_mainWindow.dataGrid.ItemsSource = collection;
+
+			
 		}
 
 		private void AddDataGridCheckBoxColumn()

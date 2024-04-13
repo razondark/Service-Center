@@ -2,6 +2,7 @@
 using DesktopApplication.Extensions;
 using ServiceCenterLibrary.Dto;
 using ServiceCenterLibrary.Services;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,12 +19,17 @@ namespace DesktopApplication
 {
 	public partial class MainWindow : Window
 	{
+		private readonly MainFormConfigFactory _configFactory;
+
 		public MainWindow()
 		{
 			InitializeComponent();
 
-			var config = new MainFormConfig<ClientDto>(this, new ClientService());
-			config.Config();
+			_configFactory = new MainFormConfigFactory(this);
+			_configFactory.RegisterService(new ClientService());
+			_configFactory.RegisterService(new EmploeeService());
+
+			_configFactory.GetConfig<ClientDto>().Config();
 		}
 
 		private void Border_MouseDown(object sender, MouseButtonEventArgs e)
@@ -56,18 +62,6 @@ namespace DesktopApplication
 			}
 		}
 
-		private void DataGridEditRowButton_Click(object sender, RoutedEventArgs e)
-		{
-			Button button = (Button)sender;
-
-			DataGridRow row = button.ParentOfType<DataGridRow>()!;
-			var item = row.Item;
-
-			// TODO: add edit form
-
-			var i = 0;
-		}
-
 		private async void DataGridRemoveRowButton_Click(object sender, RoutedEventArgs e)
 		{
 			var result = MessageBox.Show("Вы действительно хотите удалить выбранный элемент?", "Удаление", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -86,12 +80,12 @@ namespace DesktopApplication
 		{
 			if (data is ClientDto)
 			{
-				var config = new MainFormConfig<ClientDto>(this, new ClientService());
+				var config = _configFactory.GetConfig<ClientDto>();
 				config.FillDataGridData();
 			}
 			else if (data is EmployeeDto)
 			{
-				var config = new MainFormConfig<EmployeeDto>(this, new EmploeeService());
+				var config = _configFactory.GetConfig<EmployeeDto>();
 				config.FillDataGridData();
 			}
 		}
@@ -110,9 +104,27 @@ namespace DesktopApplication
 			}
 		}
 
+		private void DataGridEditRowButton_Click(object sender, RoutedEventArgs e)
+		{
+			Button button = (Button)sender;
+
+			DataGridRow row = button.ParentOfType<DataGridRow>()!;
+			var item = row.Item;
+
+			if (item is ClientDto clientDto)
+			{
+				var dialog = new MainFormConfig<ClientDto>(this, new ClientService()).CreateEditWindow(clientDto);
+				dialog.ShowDialog();
+			}
+		}
+
 		private void AddButton_Click(object sender, RoutedEventArgs e)
 		{
-
+			if (dataGrid.ItemsSource?.Cast<object>().FirstOrDefault() is ClientDto clientDto)
+			{
+				var dialog = new MainFormConfig<ClientDto>(this, new ClientService()).CreateAddWindow(clientDto);
+				dialog.ShowDialog();
+			}
 		}
 
 		private void EmployeeButton_Click(object sender, RoutedEventArgs e)
@@ -144,6 +156,26 @@ namespace DesktopApplication
 		}
 
 		private void ServiceWorkButton_Click(object sender, RoutedEventArgs e)
+		{
+
+		}
+
+		private void DevicePartProviderButton_Click(object sender, RoutedEventArgs e)
+		{
+
+		}
+
+		private void DevicePartDeliveryButton_Click(object sender, RoutedEventArgs e)
+		{
+
+		}
+
+		private void DevicePartButton_Click(object sender, RoutedEventArgs e)
+		{
+
+		}
+
+		private void ServiceButton_Click(object sender, RoutedEventArgs e)
 		{
 
 		}

@@ -43,7 +43,7 @@ public partial class ServiceCenterContext : DbContext
 
     public virtual DbSet<Service> Services { get; set; }
 
-    public virtual DbSet<ServiceWorkDto> ServiceWorks { get; set; }
+    public virtual DbSet<ServiceWork> ServiceWorks { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) //=> optionsBuilder.UseNpgsql("Host=195.80.51.63;Port=5555;Database=service-center;Username=postgres;Password=root");
 	{
@@ -361,7 +361,7 @@ public partial class ServiceCenterContext : DbContext
                 .HasColumnName("name");
         });
 
-        modelBuilder.Entity<ServiceWorkDto>(entity =>
+        modelBuilder.Entity<ServiceWork>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("service_work_pkey");
 
@@ -389,7 +389,7 @@ public partial class ServiceCenterContext : DbContext
                 .HasConstraintName("fk_servicework_idemployee");
 
             entity.HasOne(d => d.IdEquipmentHandoverReceiptNavigation).WithOne(p => p.ServiceWork)
-                .HasForeignKey<ServiceWorkDto>(d => d.IdEquipmentHandoverReceipt)
+                .HasForeignKey<ServiceWork>(d => d.IdEquipmentHandoverReceipt)
                 .HasConstraintName("fk_servicework_idehr");
 
             entity.HasMany(d => d.IdServices).WithMany(p => p.IdServiceWorks)
@@ -398,7 +398,7 @@ public partial class ServiceCenterContext : DbContext
                     r => r.HasOne<Service>().WithMany()
                         .HasForeignKey("IdService")
                         .HasConstraintName("fk_serviceprovided_idservice"),
-                    l => l.HasOne<ServiceWorkDto>().WithMany()
+                    l => l.HasOne<ServiceWork>().WithMany()
                         .HasForeignKey("IdServiceWork")
                         .HasConstraintName("fk_serviceprovided_idservicework"),
                     j =>

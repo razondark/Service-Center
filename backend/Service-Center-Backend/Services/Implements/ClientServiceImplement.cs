@@ -6,6 +6,7 @@ using Service_Center_Backend.Web.Dto;
 using Service_Center_Backend.Web.Dto.Handlers;
 using Service_Center_Backend.Web.Dto.Response;
 using Service_Center_Backend.Web.Mappers;
+using System.Configuration;
 using System.Security.Principal;
 
 namespace Service_Center_Backend.Services.Implements
@@ -23,6 +24,8 @@ namespace Service_Center_Backend.Services.Implements
 		{
 			try
 			{
+				clientDto.Id = default(int);
+
 				_context.Clients.Add(ClientMapper.ToModel(clientDto));
 				await _context.SaveChangesAsync();
 

@@ -96,7 +96,7 @@
                         </StackPanel>
 
                         <StackPanel DockPanel.Dock="Top">
-                            <Button Style="{StaticResource menuButton}">
+                            <Button Style="{StaticResource menuButton}" Click="DevicePartProviderButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="AccountTieOutline" Style="{StaticResource menuButtonIcon}"/>
                                     <TextBlock Text="Поставщики"/>
@@ -105,7 +105,7 @@
                         </StackPanel>
 
                         <StackPanel DockPanel.Dock="Top">
-                            <Button Style="{StaticResource menuButton}">
+                            <Button Style="{StaticResource menuButton}" Click="DevicePartDeliveryButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="PackageVariantClosed" Style="{StaticResource menuButtonIcon}"/>
                                     <TextBlock Text="Поставки"/>
@@ -114,7 +114,7 @@
                         </StackPanel>
 
                         <StackPanel DockPanel.Dock="Top">
-                            <Button Style="{StaticResource menuButton}">
+                            <Button Style="{StaticResource menuButton}" Click="DevicePartButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Warehouse" Style="{StaticResource menuButtonIcon}"/>
                                     <TextBlock Text="Склад"/>
@@ -123,7 +123,7 @@
                         </StackPanel>
 
                         <StackPanel DockPanel.Dock="Top">
-                            <Button Style="{StaticResource menuButton}">
+                            <Button Style="{StaticResource menuButton}" Click="ServiceButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Tools" Style="{StaticResource menuButtonIcon}"/>
                                     <TextBlock Text="Услуги"/>

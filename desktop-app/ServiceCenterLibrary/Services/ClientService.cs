@@ -1,6 +1,7 @@
 ﻿using ServiceCenterLibrary.Config;
 using ServiceCenterLibrary.Dto;
 using ServiceCenterLibrary.Dto.Response;
+using ServiceCenterLibrary.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,9 +28,21 @@ namespace ServiceCenterLibrary.Services
 			}
 		}
 
+		private async Task<T?> HandleResponseAsync<T>(HttpResponseMessage response)
+		{
+			if (!response.IsSuccessStatusCode)
+			{
+				string message = await response.Content.ReadAsStringAsync();
+				throw new ExceptionHandler(message);
+			}
+
+			return await response.Content.ReadFromJsonAsync<T>();
+		}
+
 		public async Task<IEnumerable<ClientDto>?> GetAllAsync()
 		{
-			return await _httpClient.GetFromJsonAsync<IEnumerable<ClientDto>>(_config.GetAllClientsLink);
+			HttpResponseMessage response = await _httpClient.GetAsync(_config.GetAllClientsLink);
+			return await HandleResponseAsync<IEnumerable<ClientDto>>(response);
 		}
 
 		public async Task<ClientDto?> CreateAsync(ClientDto client)
@@ -41,7 +54,7 @@ namespace ServiceCenterLibrary.Services
 
 		public async Task<ClientDto?> UpdateAsync(ClientDto client)
 		{
-			var response = await _httpClient.PutAsJsonAsync<ClientDto>(_config.CreateClientLink, client);
+			var response = await _httpClient.PutAsJsonAsync<ClientDto>(_config.UpdateClientLink, client);
 
 			return await response.Content.ReadFromJsonAsync<ClientDto>();
 		}
