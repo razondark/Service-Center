@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace ServiceCenterLibrary.Dto
 {
 	[DisplayName("Сотрудники")]
-	public class EmployeeDto
+	public class EmployeeDto : IDto
 	{
 		[DisplayName("Код")]
 		public int Id { get; set; }

@@ -16,6 +16,12 @@ namespace ServiceCenterLibrary.Config
 		public readonly string UpdateEmployeeLink;
 		public readonly string DeleteEmployeeLink;
 
+		// devices links
+		public readonly string GetAllDevicesLink;
+		public readonly string CreateDeviceLink;
+		public readonly string UpdateDeviceLink;
+		public readonly string DeleteDeviceLink;
+
 		public AppConfig()
 		{
 			// clients
@@ -29,6 +35,12 @@ namespace ServiceCenterLibrary.Config
 			CreateEmployeeLink = ConfigurationManager.AppSettings["CreateEmployee"]!;
 			UpdateEmployeeLink = ConfigurationManager.AppSettings["UpdateEmployee"]!;
 			DeleteEmployeeLink = ConfigurationManager.AppSettings["DeleteEmployee"]!;
+
+			// devices
+			GetAllDevicesLink = ConfigurationManager.AppSettings["GetAllDevices"]!;
+			CreateDeviceLink = ConfigurationManager.AppSettings["CreateDevice"]!;
+			UpdateDeviceLink = ConfigurationManager.AppSettings["UpdateDevice"]!;
+			DeleteDeviceLink = ConfigurationManager.AppSettings["DeleteDevice"]!;
 		}
 	}
 }

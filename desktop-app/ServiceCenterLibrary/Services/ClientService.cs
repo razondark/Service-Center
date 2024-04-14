@@ -1,6 +1,5 @@
 ﻿using ServiceCenterLibrary.Config;
 using ServiceCenterLibrary.Dto;
-using ServiceCenterLibrary.Dto.Response;
 using ServiceCenterLibrary.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ServiceCenterLibrary.Services
@@ -28,42 +28,37 @@ namespace ServiceCenterLibrary.Services
 			}
 		}
 
-		private async Task<T?> HandleResponseAsync<T>(HttpResponseMessage response)
-		{
-			if (!response.IsSuccessStatusCode)
-			{
-				string message = await response.Content.ReadAsStringAsync();
-				throw new ExceptionHandler(message);
-			}
-
-			return await response.Content.ReadFromJsonAsync<T>();
-		}
-
 		public async Task<IEnumerable<ClientDto>?> GetAllAsync()
 		{
-			HttpResponseMessage response = await _httpClient.GetAsync(_config.GetAllClientsLink);
+			var response = await _httpClient.GetAsync(_config.GetAllClientsLink);
 			return await HandleResponseAsync<IEnumerable<ClientDto>>(response);
 		}
 
 		public async Task<ClientDto?> CreateAsync(ClientDto client)
 		{
-			var response = await _httpClient.PostAsJsonAsync<ClientDto>(_config.CreateClientLink, client);
+			var json = JsonSerializer.Serialize(client);
+			var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-			return await response.Content.ReadFromJsonAsync<ClientDto>();
+			var response = await _httpClient.PostAsync(_config.CreateClientLink, content);
+
+			return await HandleResponseAsync<ClientDto>(response);
 		}
 
 		public async Task<ClientDto?> UpdateAsync(ClientDto client)
 		{
-			var response = await _httpClient.PutAsJsonAsync<ClientDto>(_config.UpdateClientLink, client);
+			var json = JsonSerializer.Serialize(client);
+			var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-			return await response.Content.ReadFromJsonAsync<ClientDto>();
+			var response = await _httpClient.PutAsync(_config.UpdateClientLink, content);
+
+			return await HandleResponseAsync<ClientDto>(response);
 		}
 
 		public async Task<ClientDto?> DeleteAsync(int id)
 		{
 			var response = await _httpClient.DeleteAsync($"{_config.DeleteClientLink}/{id}");
 
-			return await response.Content.ReadFromJsonAsync<ClientDto>();
+			return await HandleResponseAsync<ClientDto>(response);
 		}
 	}
 }

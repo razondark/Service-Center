@@ -1,4 +1,5 @@
-﻿using ServiceCenterLibrary.Services;
+﻿using ServiceCenterLibrary.Dto;
+using ServiceCenterLibrary.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace DesktopApplication.Config
 			_serviceInstances[typeof(T)] = service;
 		}
 
-		public MainFormConfig<T> GetConfig<T>()
+		public MainFormConfig<T> GetConfig<T>() where T : IDto
 		{
 			Type dtoType = typeof(T);
 			if (!_configInstances.TryGetValue(dtoType, out object? config))
@@ -39,6 +40,22 @@ namespace DesktopApplication.Config
 				}
 			}
 			return (MainFormConfig<T>)config;
+		}
+
+		public dynamic GetConfig(Type dtoType)
+		{
+			if (!_configInstances.TryGetValue(dtoType, out object? config))
+			{
+				Type dataServiceType = typeof(IDataService<>).MakeGenericType(dtoType);
+				dynamic dataService = Activator.CreateInstance(dataServiceType)!;
+
+
+				Type mainFormConfigType = typeof(MainFormConfig<>).MakeGenericType(dtoType);
+				config = Activator.CreateInstance(mainFormConfigType, _mainWindow, dataService);
+
+				_configInstances[dtoType] = config;
+			}
+			return config;
 		}
 	}
 }

@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ServiceCenterLibrary.Services
@@ -24,30 +26,37 @@ namespace ServiceCenterLibrary.Services
 			}
 		}
 
+		public async Task<IEnumerable<EmployeeDto>?> GetAllAsync()
+		{
+			var response = await _httpClient.GetAsync(_config.GetAllEmployeesLink);
+			return await HandleResponseAsync<IEnumerable<EmployeeDto>>(response);
+		}
+
 		public async Task<EmployeeDto?> CreateAsync(EmployeeDto employee)
 		{
-			var response = await _httpClient.PostAsJsonAsync<EmployeeDto>(_config.CreateEmployeeLink, employee);
+			var json = JsonSerializer.Serialize(employee);
+			var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-			return await response.Content.ReadFromJsonAsync<EmployeeDto>();
+			var response = await _httpClient.PostAsync(_config.CreateEmployeeLink, content);
+
+			return await HandleResponseAsync<EmployeeDto>(response);
 		}
 
 		public async Task<EmployeeDto?> DeleteAsync(int id)
 		{
 			var response = await _httpClient.DeleteAsync($"{_config.DeleteEmployeeLink}/{id}");
 
-			return await response.Content.ReadFromJsonAsync<EmployeeDto>();
-		}
-
-		public async Task<IEnumerable<EmployeeDto>?> GetAllAsync()
-		{
-			return await _httpClient.GetFromJsonAsync<IEnumerable<EmployeeDto>>(_config.GetAllEmployeesLink);
+			return await HandleResponseAsync<EmployeeDto>(response);
 		}
 
 		public async Task<EmployeeDto?> UpdateAsync(EmployeeDto employee)
 		{
-			var response = await _httpClient.PutAsJsonAsync<EmployeeDto>(_config.CreateClientLink, employee);
+			var json = JsonSerializer.Serialize(employee);
+			var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-			return await response.Content.ReadFromJsonAsync<EmployeeDto>();
+			var response = await _httpClient.PutAsync(_config.UpdateEmployeeLink, content);
+
+			return await HandleResponseAsync<EmployeeDto>(response);
 		}
 	}
 }

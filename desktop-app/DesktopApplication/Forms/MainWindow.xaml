@@ -25,7 +25,7 @@
                 
                 <!--menu icons-->
                 <Button Margin="20 28 0 35" Style="{StaticResource topButton}">
-                    <Icon:PackIconMaterial Kind="Menu" Width="15" Height="15"/>
+                    <Icon:PackIconMaterial Kind="AccountOutline" Width="15" Height="15"/>
                 </Button>
 
                 <Border Grid.Row="1" Background="#623ed0" CornerRadius="0 50 0 30">
@@ -167,12 +167,13 @@
                 </Grid>
                 
                 <!--top buttons-->
-                <Button Style="{StaticResource topButton}" Margin="0 0 20 0" Background="#dcdcdc" HorizontalAlignment="Right">
-                    <Icon:PackIconMaterial Kind="Cog"/>
+                <Button Style="{StaticResource closeButton}" Margin="0 0 20 0" Background="#dcdcdc" HorizontalAlignment="Right"
+                        Click="ExitButton_Click">
+                    <Icon:PackIconMaterial Kind="Close"/>
                 </Button>
 
                 <Button Style="{StaticResource topButton}" Margin="0 0 55 0" HorizontalAlignment="Right">
-                    <Icon:PackIconMaterial Kind="Bell"/>
+                    <Icon:PackIconMaterial Kind="DatabaseCogOutline"/>
                 </Button>
 
                 <!--page title-->

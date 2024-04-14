@@ -21,6 +21,7 @@ namespace Service_Center_Backend.Services.Implements
 		{
 			try
 			{
+				employeeDto.Id = default(int);
 				_context.Employees.Add(EmployeeMapper.ToModel(employeeDto));
 				await _context.SaveChangesAsync();
 

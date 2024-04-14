@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Service_Center_Backend.Context;
 using Service_Center_Backend.Web.Dto;
 using Service_Center_Backend.Web.Dto.Handlers;
-using Service_Center_Backend.Web.Dto.Response;
 using Service_Center_Backend.Web.Mappers;
 
 namespace Service_Center_Backend.Services.Implements
@@ -21,6 +20,7 @@ namespace Service_Center_Backend.Services.Implements
 		{
 			try
 			{
+				deviceDto.Id = default(int);
 				_context.Devices.Add(DeviceMapper.ToModel(deviceDto));
 				await _context.SaveChangesAsync();
 
@@ -69,7 +69,7 @@ namespace Service_Center_Backend.Services.Implements
 				return new NotFoundObjectResult(new NotFoundExceptionHandler("Устройства не найдены"));
 			}
 
-			return new OkObjectResult(new DevicesResponse(DeviceMapper.ToDto(devices)));
+			return new OkObjectResult(DeviceMapper.ToDto(devices));
 		}
 
 		public async Task<IActionResult> GetDeviceById(int id)

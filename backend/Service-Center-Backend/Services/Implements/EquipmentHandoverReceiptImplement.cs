@@ -5,7 +5,6 @@ using Service_Center_Backend.Models;
 using Service_Center_Backend.Web.Dto.Handlers;
 using Service_Center_Backend.Web.Dto;
 using Service_Center_Backend.Web.Mappers;
-using Service_Center_Backend.Web.Dto.Response;
 
 namespace Service_Center_Backend.Services.Implements
 {
@@ -22,6 +21,7 @@ namespace Service_Center_Backend.Services.Implements
 		{
 			try
 			{
+				ehrDto.Id = default(int);
 				_context.EquipmentHandoverReceipts.Add(EquipmentHandoverReceiptMapper.ToModel(ehrDto));
 				await _context.SaveChangesAsync();
 
@@ -70,7 +70,7 @@ namespace Service_Center_Backend.Services.Implements
 				return new NotFoundObjectResult(new NotFoundExceptionHandler("Акты не найдены"));
 			}
 
-			return new OkObjectResult(new EquipmentHandoverReceiptResponse(EquipmentHandoverReceiptMapper.ToDto(ehrs)));
+			return new OkObjectResult(EquipmentHandoverReceiptMapper.ToDto(ehrs));
 		}
 
 		public async Task<IActionResult> GetEHRById(int id)

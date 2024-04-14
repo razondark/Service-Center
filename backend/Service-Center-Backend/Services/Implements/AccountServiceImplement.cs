@@ -4,7 +4,6 @@ using Service_Center_Backend.Context;
 using Service_Center_Backend.Models;
 using Service_Center_Backend.Web.Dto.Authentication;
 using Service_Center_Backend.Web.Dto.Handlers;
-using Service_Center_Backend.Web.Dto.Response;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -27,7 +26,7 @@ namespace Service_Center_Backend.Services.Implements
                 return new NotFoundObjectResult(new NotFoundExceptionHandler("Аккаунты не найдены"));
             }
 
-            return new OkObjectResult(new AccountsResponse(accounts));
+            return new OkObjectResult(accounts);
         }
 
         public async Task<IActionResult> CreateAccount(Account account)

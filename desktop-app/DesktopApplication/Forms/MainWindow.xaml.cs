@@ -3,6 +3,8 @@ using DesktopApplication.Extensions;
 using ServiceCenterLibrary.Dto;
 using ServiceCenterLibrary.Services;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,6 +30,7 @@ namespace DesktopApplication
 			_configFactory = new MainFormConfigFactory(this);
 			_configFactory.RegisterService(new ClientService());
 			_configFactory.RegisterService(new EmploeeService());
+			_configFactory.RegisterService(new DeviceService());
 
 			_configFactory.GetConfig<ClientDto>().Config();
 		}
@@ -45,7 +48,7 @@ namespace DesktopApplication
 		{
 			if (e.ClickCount == 2)
 			{
-				if (IsMaximized) 
+				if (IsMaximized)
 				{
 					this.WindowState = WindowState.Normal;
 					this.Width = 1280;
@@ -78,30 +81,19 @@ namespace DesktopApplication
 
 		private void UpdateDataGridData(object data)
 		{
-			if (data is ClientDto)
+			if (data is IDto dto)
 			{
-				var config = _configFactory.GetConfig<ClientDto>();
-				config.FillDataGridData();
-			}
-			else if (data is EmployeeDto)
-			{
-				var config = _configFactory.GetConfig<EmployeeDto>();
+				dynamic config = _configFactory.GetConfig(dto.GetType());
 				config.FillDataGridData();
 			}
 		}
 
-		private async Task RemoveItem(object item)
+		private async Task RemoveItem(dynamic item)
 		{
-			if (item is ClientDto clientDto)
-			{
-				var clientService = new ClientService();
-				await clientService.DeleteAsync(clientDto.Id);
-			}
-			else if (item is EmployeeDto employeeDto)
-			{
-				var employeeService = new EmploeeService();
-				await employeeService.DeleteAsync(employeeDto.Id);
-			}
+			var dtoType = item.GetType();
+			var service = _configFactory.GetConfig(dtoType).GetService();
+
+			await service.DeleteAsync(item.Id);
 		}
 
 		private void DataGridEditRowButton_Click(object sender, RoutedEventArgs e)
@@ -111,25 +103,35 @@ namespace DesktopApplication
 			DataGridRow row = button.ParentOfType<DataGridRow>()!;
 			var item = row.Item;
 
-			if (item is ClientDto clientDto)
-			{
-				var dialog = new MainFormConfig<ClientDto>(this, new ClientService()).CreateEditWindow(clientDto);
-				dialog.ShowDialog();
-			}
+			var dtoType = item.GetType();
+			var dialog = _configFactory.GetConfig(dtoType).CreateEditWindow(item);
+			dialog.ShowDialog();
 		}
 
+		// TODO: change
 		private void AddButton_Click(object sender, RoutedEventArgs e)
 		{
-			if (dataGrid.ItemsSource?.Cast<object>().FirstOrDefault() is ClientDto clientDto)
+			var tableTitle = this.dataGrid.FindName("tableTitle") as TextBlock;
+
+			if (tableTitle!.Text.Equals(typeof(ClientDto).GetCustomAttributes(typeof(DisplayNameAttribute), true)
+														  .Cast<DisplayNameAttribute>()
+														  .FirstOrDefault()?.DisplayName))
 			{
-				var dialog = new MainFormConfig<ClientDto>(this, new ClientService()).CreateAddWindow(clientDto);
+				var dialog = _configFactory.GetConfig<ClientDto>().CreateAddWindow(new ClientDto());
+				dialog.ShowDialog();
+			}
+			else if (tableTitle!.Text.Equals(typeof(EmployeeDto).GetCustomAttributes(typeof(DisplayNameAttribute), true)
+														  .Cast<DisplayNameAttribute>()
+														  .FirstOrDefault()?.DisplayName))
+			{
+				var dialog = _configFactory.GetConfig<EmployeeDto>().CreateAddWindow(new EmployeeDto());
 				dialog.ShowDialog();
 			}
 		}
 
 		private void EmployeeButton_Click(object sender, RoutedEventArgs e)
 		{
-			var config = new MainFormConfig<EmployeeDto>(this, new EmploeeService());
+			var config = _configFactory.GetConfig<EmployeeDto>();
 			//config.Config(
 			//	("allEmployees", "Все сотрудники"), 
 			//	("masters", "Мастеры"), 
@@ -141,13 +143,14 @@ namespace DesktopApplication
 
 		private void ClientsButton_Click(object sender, RoutedEventArgs e)
 		{
-			var config = new MainFormConfig<ClientDto>(this, new ClientService());
+			var config = _configFactory.GetConfig<ClientDto>();
 			config.Config();
 		}
 
 		private void DeviceButton_Click(object sender, RoutedEventArgs e)
 		{
-
+			var config = _configFactory.GetConfig<DeviceDto>();
+			config.Config();
 		}
 
 		private void EHRButton_Click(object sender, RoutedEventArgs e)
@@ -178,6 +181,11 @@ namespace DesktopApplication
 		private void ServiceButton_Click(object sender, RoutedEventArgs e)
 		{
 
+		}
+
+		private void ExitButton_Click(object sender, RoutedEventArgs e)
+		{
+			Application.Current.Shutdown();
 		}
 	}
 }
