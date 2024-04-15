@@ -1,4 +1,5 @@
-﻿using MahApps.Metro.IconPacks;
+﻿using DesktopApplication.Extensions;
+using MahApps.Metro.IconPacks;
 using ServiceCenterLibrary.Dto;
 using ServiceCenterLibrary.Exceptions;
 using ServiceCenterLibrary.Services;
@@ -106,11 +107,11 @@ namespace DesktopApplication.Config
 			}
 		}
 
-		public Window CreateEditWindow(dynamic dto)
+		public async Task<Window> CreateEditWindow(dynamic dto)
 		{
 			Type type = dto!.GetType();
 
-			var textBoxesDictionary = new Dictionary<dynamic, PropertyInfo>();
+			var elemsDictionary = new Dictionary<dynamic, PropertyInfo>();
 
 			var editWindow = new Window
 			{
@@ -126,6 +127,8 @@ namespace DesktopApplication.Config
 					editWindow.DragMove();
 				}
 			};
+
+			var dtoId = await _dataService.GetByIdAsync(dto.Id);
 
 			var stackPanel = new StackPanel();
 			
@@ -143,24 +146,78 @@ namespace DesktopApplication.Config
 
 				if (property.PropertyType == typeof(int))
 				{
-					var textBox = new TextBox
-					{
-						Text = property.GetValue(dto)!.ToString(),
-						Width = 200,
-						Height = 30,
-						Margin = new Thickness(10),
-						VerticalAlignment = VerticalAlignment.Center,
-						HorizontalAlignment = HorizontalAlignment.Center
-					};
-
 					if (property.Name.Equals("Id"))
 					{
-						textBox.IsReadOnly = true;
-						textBox.Background = Brushes.LightGray;
+						var textBox = new TextBox
+						{
+							Text = property.GetValue(dto)!.ToString(),
+							Width = 200,
+							Height = 30,
+							Margin = new Thickness(10),
+							VerticalAlignment = VerticalAlignment.Center,
+							HorizontalAlignment = HorizontalAlignment.Center
+						};
+
+						if (property.Name.Equals("Id"))
+						{
+							textBox.IsReadOnly = true;
+							textBox.Background = Brushes.LightGray;
+						}
+
+						elemsDictionary.Add(textBox, property);
+						stackPanel.Children.Add(textBox);
 					}
 
-					textBoxesDictionary.Add(textBox, property);
-					stackPanel.Children.Add(textBox);
+					if (property.Name.Contains("Id") && property.Name.Length > 2)
+					{
+						IEnumerable<dynamic>? items = null;
+						if (property.Name.Equals("IdClient"))
+						{
+							items = await new ClientService().GetAllAsync();
+							items = items.OrderBy(i => i.Id);
+							var comboBox = new ComboBox();
+							foreach (var item in items)
+							{
+								comboBox.Items.Add(item.FullName);
+							};
+							comboBox.SelectedIndex = dtoId.IdClient - 1;
+
+							elemsDictionary.Add(comboBox.SelectedItem, property);
+							stackPanel.Children.Add(comboBox);
+						}
+						else if (property.Name.Equals("IdDevice"))
+						{
+							items = await new DeviceService().GetAllAsync();
+							items = items.OrderBy(i => i.Id);
+							var comboBox = new ComboBox();
+							foreach (var item in items)
+							{
+								comboBox.Items.Add($"{item.Manufacturer} {item.Model}");
+							}
+							comboBox.SelectedIndex = dtoId.IdDevice - 1;
+
+							elemsDictionary.Add(comboBox.SelectedItem, property);
+							stackPanel.Children.Add(comboBox);
+						}
+						else if (property.Name.Equals("IdEmployee"))
+						{
+							items = await new EmploeeService().GetAllAsync();
+							items = items.OrderBy(i => i.Id);
+							var comboBox = new ComboBox();
+							foreach (var item in items)
+							{
+								comboBox.Items.Add(item.FullName);
+							}
+							comboBox.SelectedIndex = dtoId.IdEmployee - 1;
+
+							elemsDictionary.Add(comboBox.SelectedItem, property);
+							stackPanel.Children.Add(comboBox);
+						}
+						else
+						{
+							throw new ArgumentException();
+						}
+					}
 				}
 				else if (property.PropertyType == typeof(string))
 				{
@@ -174,7 +231,7 @@ namespace DesktopApplication.Config
 						HorizontalAlignment = HorizontalAlignment.Center
 					};
 
-					textBoxesDictionary.Add(textBox, property);
+					elemsDictionary.Add(textBox, property);
 					stackPanel.Children.Add(textBox);
 				}
 				else if (property.PropertyType == typeof(decimal))
@@ -191,23 +248,22 @@ namespace DesktopApplication.Config
 						HorizontalAlignment = HorizontalAlignment.Center
 					};
 
-					textBoxesDictionary.Add(textBox, property);
+					elemsDictionary.Add(textBox, property);
 					stackPanel.Children.Add(textBox);
 				}
-				else if (property.PropertyType == typeof(DateTime))
+				else if (property.PropertyType == typeof(DateTime) || (Nullable.GetUnderlyingType(property.PropertyType) == typeof(DateTime)))
 				{
-					var calendar = new Calendar
+					var datePicker = new DatePicker
 					{
-						DisplayDate = (DateTime)property.GetValue(dto)!,
-						Width = 200,
-						Height = 30,
 						Margin = new Thickness(10),
 						VerticalAlignment = VerticalAlignment.Center,
-						HorizontalAlignment = HorizontalAlignment.Center
+						HorizontalAlignment = HorizontalAlignment.Center,
+						DisplayDate = (DateTime)(property.GetValue(dto) ?? DateTime.Now), // Если значение null, устанавливаем текущую дату
+						SelectedDate = (DateTime)(property.GetValue(dto) ?? DateTime.Now)
 					};
 
-					textBoxesDictionary.Add(calendar, property);
-					stackPanel.Children.Add(calendar);
+					elemsDictionary.Add(datePicker, property);
+					stackPanel.Children.Add(datePicker);
 				}
 				
 			}
@@ -225,16 +281,55 @@ namespace DesktopApplication.Config
 			okButton.Click += async (sender, e) =>
 			{
 				// update dto data
-				foreach (var pair in textBoxesDictionary)
+				foreach (var pair in elemsDictionary)
 				{
-					string newValue = pair.Key.Text;
+					string newValue;
+					if (pair.Key is int)
+					{
+						newValue = pair.Key.ToString();
+					}
+					else if (pair.Key is string)
+					{
+						newValue = pair.Key;
+					}
+					else
+					{
+						newValue = pair.Key.Text;
+					}
+
 					if (newValue == String.Empty)
 					{
 						MessageBox.Show("Все поля должны быть заполнены", "Ошибка");
 						return;
 					}
 
-					pair.Value.SetValue(dto, Convert.ChangeType(newValue, pair.Value.PropertyType));
+					if (pair.Value.PropertyType == typeof(int))
+					{
+						if (newValue is string)
+						{
+							// not working???
+							var res = await _dataService.GetAllAsync();
+							var id = res.Where(i => i.Id == dto.Id).ToList();
+							pair.Value.SetValue(dto, Convert.ChangeType(Int32.Parse(newValue), pair.Value.PropertyType));
+							continue;
+						}
+						pair.Value.SetValue(dto, Convert.ChangeType(Int32.Parse(newValue) - 1, pair.Value.PropertyType));
+					}
+					else if (pair.Value.PropertyType == typeof(DateTime) || (Nullable.GetUnderlyingType(pair.Value.PropertyType) == typeof(DateTime)))
+					{
+						if (Nullable.GetUnderlyingType(pair.Value.PropertyType) == typeof(DateTime))
+						{
+							pair.Value.SetValue(dto, Convert.ChangeType(DateTime.Parse(newValue), Nullable.GetUnderlyingType(pair.Value.PropertyType)));
+						}
+						else
+						{
+							pair.Value.SetValue(dto, Convert.ChangeType(DateTime.Parse(newValue), pair.Value.PropertyType));
+						}
+					}
+					else
+					{
+						pair.Value.SetValue(dto, Convert.ChangeType(newValue, pair.Value.PropertyType));
+					}
 				}
 
 				try
@@ -282,10 +377,10 @@ namespace DesktopApplication.Config
 			return editWindow;
 		}
 
-		public Window CreateAddWindow(dynamic dto)
+		public async Task<Window> CreateAddWindow(dynamic dto)
 		{
 			Type type = dto!.GetType();
-			var textBoxesDictionary = new Dictionary<TextBox, PropertyInfo>();
+			var elemsDictionary = new Dictionary<dynamic, PropertyInfo>();
 
 			var addWindow = new Window
 			{
@@ -310,32 +405,114 @@ namespace DesktopApplication.Config
 			// add elems and data
 			foreach (var property in type!.GetProperties())
 			{
+				var displayNameAttribute = property.GetCustomAttribute<DisplayNameAttribute>();
+				var displayName = displayNameAttribute?.DisplayName ?? property.Name;
+
 				if (property.Name.Equals("Id"))
 				{
 					continue;
 				}
 
-				var displayNameAttribute = property.GetCustomAttribute<DisplayNameAttribute>();
-				var displayName = displayNameAttribute?.DisplayName ?? property.Name;
-
 				var label = new Label
 				{
 					Content = displayName,
 				};
-
-				var textBox = new TextBox
-				{
-					Width = 200,
-					Height = 30,
-					Margin = new Thickness(10),
-					VerticalAlignment = VerticalAlignment.Center,
-					HorizontalAlignment = HorizontalAlignment.Center
-				};
-
-				textBoxesDictionary.Add(textBox, property);
-
 				stackPanel.Children.Add(label);
-				stackPanel.Children.Add(textBox);
+
+				if (property.PropertyType == typeof(int))
+				{
+					if (property.Name.Contains("Id") && property.Name.Length > 2)
+					{
+						dynamic? items = null;
+						if (property.Name.Equals("IdClient"))
+						{
+							items = await new ClientService().GetAllAsync();
+							var comboBox = new ComboBox();
+							foreach (var item in (IEnumerable<ClientDto>)items)
+							{
+								comboBox.Items.Add(item.FullName);
+							}
+
+							elemsDictionary.Add(comboBox, property);
+							stackPanel.Children.Add(comboBox);
+						}
+						else if (property.Name.Equals("IdDevice"))
+						{
+							items = await new DeviceService().GetAllAsync();
+							var comboBox = new ComboBox();
+							foreach (var item in (IEnumerable<DeviceDto>)items)
+							{
+								comboBox.Items.Add($"{item.Manufacturer} {item.Model}");
+							}
+
+							elemsDictionary.Add(comboBox, property);
+							stackPanel.Children.Add(comboBox);
+						}
+						else if (property.Name.Equals("IdEmployee"))
+						{
+							items = await  new EmploeeService().GetAllAsync();
+							var comboBox = new ComboBox();
+							foreach (var item in (IEnumerable<EmployeeDto>)items)
+							{
+								comboBox.Items.Add(item.FullName);
+							}
+
+							elemsDictionary.Add(comboBox, property);
+							stackPanel.Children.Add(comboBox);
+						}
+						else
+						{
+							throw new ArgumentException();
+						}
+					}
+				}
+				else if (property.PropertyType == typeof(string))
+				{
+					var textBox = new TextBox
+					{
+						//Text = property.GetValue(dto)!.ToString(),
+						Width = 200,
+						Height = 30,
+						Margin = new Thickness(10),
+						VerticalAlignment = VerticalAlignment.Center,
+						HorizontalAlignment = HorizontalAlignment.Center
+					};
+
+					elemsDictionary.Add(textBox, property);
+					stackPanel.Children.Add(textBox);
+				}
+				else if (property.PropertyType == typeof(decimal))
+				{
+					var value = (decimal)property.GetValue(dto)!;
+
+					var textBox = new TextBox
+					{
+						//Text = value.ToString("F"),
+						Width = 200,
+						Height = 30,
+						Margin = new Thickness(10),
+						VerticalAlignment = VerticalAlignment.Center,
+						HorizontalAlignment = HorizontalAlignment.Center
+					};
+
+					elemsDictionary.Add(textBox, property);
+					stackPanel.Children.Add(textBox);
+				}
+				else if (property.PropertyType == typeof(DateTime) || (Nullable.GetUnderlyingType(property.PropertyType) == typeof(DateTime)))
+				{
+					var datePicker = new DatePicker
+					{
+						Margin = new Thickness(10),
+						VerticalAlignment = VerticalAlignment.Center,
+						HorizontalAlignment = HorizontalAlignment.Center,
+						DisplayDate = (DateTime)(property.GetValue(dto) ?? DateTime.Now), // Если значение null, устанавливаем текущую дату
+						SelectedDate = (DateTime)(property.GetValue(dto) ?? DateTime.Now)
+					};
+
+					elemsDictionary.Add(datePicker, property);
+					stackPanel.Children.Add(datePicker);
+				}
+
 			}
 
 			var okButton = new Button
@@ -351,7 +528,7 @@ namespace DesktopApplication.Config
 			okButton.Click += async (sender, e) =>
 			{
 				// update dto data
-				foreach (var pair in textBoxesDictionary)
+				foreach (var pair in elemsDictionary)
 				{
 					string newValue = pair.Key.Text;
 					if (newValue == String.Empty)
@@ -466,10 +643,35 @@ namespace DesktopApplication.Config
 			}
 		}
 
+		private DataGridRow GetClickedRow(MouseButtonEventArgs e)
+		{
+			DependencyObject dep = (DependencyObject)e.OriginalSource;
+
+			// Ищем родительский элемент типа DataGridRow
+			while (dep != null && !(dep is DataGridRow))
+			{
+				dep = VisualTreeHelper.GetParent(dep);
+			}
+
+			return dep as DataGridRow;
+		}
+
 		private void FillDataGrid(IEnumerable<object> elements, Type? elementsType = null)
 		{
 			var buttons = _mainWindow.dataGrid.FindName("actionButtons") as DataGridTemplateColumn;
 			_mainWindow.dataGrid.Columns.Clear();
+
+			// TODO: error _dataservice???? always clientDto type in T
+			//_mainWindow.dataGrid.RemoveHandler(_mainWindow.dataGrid.MouseLeftButtonDown, null);
+			//_mainWindow.dataGrid.MouseDoubleClick += async (sender, e) =>
+			//{
+			//	DataGridRow row = GetClickedRow(e);
+			//	var item = row.Item;
+
+			//	await _dataService.GetByIdAsync(item.Id);
+
+			//	var i = 0;
+			//};
 
 			Type? elementType = null;
 			if (elementsType is not null)
@@ -489,6 +691,10 @@ namespace DesktopApplication.Config
 			foreach (var property in elementType.GetProperties())
 			{
 				var displayNameAttribute = property.GetCustomAttribute<DisplayNameAttribute>();
+				if (displayNameAttribute is null || (property.Name.Contains("Id") && property.Name.Length > 2))
+				{
+					continue;
+				}
 				var displayName = displayNameAttribute?.DisplayName ?? property.Name;
 
 				var column = new DataGridTextColumn

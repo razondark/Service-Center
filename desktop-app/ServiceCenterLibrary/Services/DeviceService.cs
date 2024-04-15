@@ -31,6 +31,12 @@ namespace ServiceCenterLibrary.Services
 			return await HandleResponseAsync<IEnumerable<DeviceDto>>(response);
 		}
 
+		public async Task<DeviceDto?> GetByIdAsync(int id)
+		{
+			var response = await _httpClient.GetAsync($"{_config.GetDeviceByIdLink}/{id}");
+			return await HandleResponseAsync<DeviceDto>(response);
+		}
+
 		public async Task<DeviceDto?> CreateAsync(DeviceDto device)
 		{
 			var json = JsonSerializer.Serialize(device);

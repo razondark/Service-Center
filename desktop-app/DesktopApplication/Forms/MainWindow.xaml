@@ -34,7 +34,7 @@
                                 DockPanel.Dock="Top" HorizontalAlignment="Left" Margin="20 -30 0 0">
                             <Ellipse>
                                 <Ellipse.Fill>
-                                    <ImageBrush x:Name="userIcon"/> <!--ADD ICON-->
+                                    <ImageBrush x:Name="userIcon"/>
                                 </Ellipse.Fill>
                             </Ellipse>
                         </Border>
@@ -42,7 +42,7 @@
                         <!--menu titels-->
                         <TextBlock Text="Сервисный центр" Foreground="White" FontSize="22" FontWeight="SemiBold"
                                    DockPanel.Dock="Top" TextAlignment="Center" Margin="5 25 0 10"/>
-                        <TextBlock Text="username" Foreground="#d0bfff" FontSize="14" FontWeight="SemiBold"
+                        <TextBlock x:Name="username"  Text="username" Foreground="#d0bfff" FontSize="14" FontWeight="SemiBold"
                                    DockPanel.Dock="Top" TextAlignment="Center"/>
 
                         
@@ -51,7 +51,7 @@
                         
                         <!--menu buttons-->
                         <StackPanel DockPanel.Dock="Top">
-                            <Button Style="{StaticResource menuButton}" Click="ClientsButton_Click">
+                            <Button x:Name="clientsButton" Style="{StaticResource menuButton}" Click="ClientsButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="AccountMultipleOutline" Style="{StaticResource menuButtonIcon}"/>
                                     <TextBlock Text="Клиенты"/>
@@ -60,7 +60,7 @@
                         </StackPanel>
 
                         <StackPanel DockPanel.Dock="Top">
-                            <Button Style="{StaticResource menuButton}" Click="EmployeeButton_Click">
+                            <Button x:Name="employeesButton" Style="{StaticResource menuButton}" Click="EmployeeButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="WrenchOutline" Style="{StaticResource menuButtonIcon}"/>
                                     <TextBlock Text="Работники"/>
@@ -69,7 +69,7 @@
                         </StackPanel>
 
                         <StackPanel DockPanel.Dock="Top">
-                            <Button Style="{StaticResource menuButton}" Click="DeviceButton_Click">
+                            <Button x:Name="devicesButton" Style="{StaticResource menuButton}" Click="DeviceButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Devices" Style="{StaticResource menuButtonIcon}"/>
                                     <TextBlock Text="Устройства"/>
@@ -78,7 +78,7 @@
                         </StackPanel>
                         
                         <StackPanel DockPanel.Dock="Top">
-                            <Button Style="{StaticResource menuButton}" Click="EHRButton_Click">
+                            <Button x:Name="ehrButton" Style="{StaticResource menuButton}" Click="EHRButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="TextBoxMultipleOutline" Style="{StaticResource menuButtonIcon}"/>
                                     <TextBlock Text="Акты"/>
@@ -87,7 +87,7 @@
                         </StackPanel>
 
                         <StackPanel DockPanel.Dock="Top">
-                            <Button Style="{StaticResource menuButton}" Click="ServiceWorkButton_Click">
+                            <Button x:Name="serviceButton" Style="{StaticResource menuButton}" Click="ServiceWorkButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="ClipboardTextClockOutline" Style="{StaticResource menuButtonIcon}"/>
                                     <TextBlock Text="Работы"/>
@@ -95,7 +95,7 @@
                             </Button>
                         </StackPanel>
 
-                        <StackPanel DockPanel.Dock="Top">
+                        <StackPanel x:Name="providerButton" DockPanel.Dock="Top">
                             <Button Style="{StaticResource menuButton}" Click="DevicePartProviderButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="AccountTieOutline" Style="{StaticResource menuButtonIcon}"/>
@@ -104,7 +104,7 @@
                             </Button>
                         </StackPanel>
 
-                        <StackPanel DockPanel.Dock="Top">
+                        <StackPanel x:Name="devicePartDeliveryButton" DockPanel.Dock="Top">
                             <Button Style="{StaticResource menuButton}" Click="DevicePartDeliveryButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="PackageVariantClosed" Style="{StaticResource menuButtonIcon}"/>
@@ -113,7 +113,7 @@
                             </Button>
                         </StackPanel>
 
-                        <StackPanel DockPanel.Dock="Top">
+                        <StackPanel x:Name="devicePartButton" DockPanel.Dock="Top">
                             <Button Style="{StaticResource menuButton}" Click="DevicePartButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Warehouse" Style="{StaticResource menuButtonIcon}"/>
@@ -123,7 +123,7 @@
                         </StackPanel>
 
                         <StackPanel DockPanel.Dock="Top">
-                            <Button Style="{StaticResource menuButton}" Click="ServiceButton_Click">
+                            <Button x:Name="serviceWorkButton" Style="{StaticResource menuButton}" Click="ServiceButton_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <Icon:PackIconMaterial Kind="Tools" Style="{StaticResource menuButtonIcon}"/>
                                     <TextBlock Text="Услуги"/>
@@ -131,10 +131,10 @@
                             </Button>
                         </StackPanel>
 
-                        <Button Style="{StaticResource menuButton}" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Margin="15 0 15 20">
+                        <Button Click="LogoutButton_Click" Style="{StaticResource menuButton}" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Margin="15 0 15 20">
                             <StackPanel Orientation="Horizontal">
                                 <Icon:PackIconMaterial Kind="Logout" Style="{StaticResource menuButtonIcon}"/>
-                                <TextBlock Text="Logout"/>
+                                <TextBlock Text="Выход"/>
                             </StackPanel>
                         </Button>
 
@@ -159,7 +159,7 @@
                     <TextBlock Margin="20 0" VerticalAlignment="Center" Foreground="#b0b9c6" IsHitTestVisible="False"
                                Panel.ZIndex="1" Text="Поиск" Visibility="{Binding ElementName=txtSearch, Path=Text.IsEmpty, Converter={StaticResource BoolToVis}}"/>
 
-                    <TextBox x:Name="txtSearch" Style="{StaticResource textBoxSerch}"/>
+                    <TextBox x:Name="txtSearch" TextChanged="txtSearch_TextChanged" Style="{StaticResource textBoxSerch}"/>
 
                     <Icon:PackIconMaterial Kind="Magnify" Width="15" Height="15" VerticalAlignment="Center"
                                            Margin="0 0 15 0" Foreground="#b0b9c6" HorizontalAlignment="Right"/>
@@ -172,7 +172,7 @@
                     <Icon:PackIconMaterial Kind="Close"/>
                 </Button>
 
-                <Button Style="{StaticResource topButton}" Margin="0 0 55 0" HorizontalAlignment="Right">
+                <Button x:Name="dbButton" Style="{StaticResource topButton}" Margin="0 0 55 0" HorizontalAlignment="Right">
                     <Icon:PackIconMaterial Kind="DatabaseCogOutline"/>
                 </Button>
 
@@ -248,11 +248,11 @@
                         <DataGridTemplateColumn x:Name="actionButtons" Header="Действия" IsReadOnly="True" Width="auto">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel x:Name="panelButtons" Orientation="Horizontal">
                                         <Button Style="{StaticResource gridEditButton}" Click="DataGridEditRowButton_Click">
                                             <Icon:PackIconMaterial Kind="PencilOutline" Style="{StaticResource gridButtonIcon}"/>
                                         </Button>
-                                        <Button Style="{StaticResource gridRemoveButton}" Margin="5 0 0 0" Click="DataGridRemoveRowButton_Click">
+                                        <Button x:Name="removeButton" Style="{StaticResource gridRemoveButton}" Margin="5 0 0 0" Click="DataGridRemoveRowButton_Click">
                                             <Icon:PackIconMaterial Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
                                         </Button>
                                     </StackPanel>

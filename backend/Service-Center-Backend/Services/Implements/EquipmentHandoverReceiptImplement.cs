@@ -21,7 +21,7 @@ namespace Service_Center_Backend.Services.Implements
 		{
 			try
 			{
-				ehrDto.Id = default(int);
+
 				_context.EquipmentHandoverReceipts.Add(EquipmentHandoverReceiptMapper.ToModel(ehrDto));
 				await _context.SaveChangesAsync();
 
@@ -50,7 +50,8 @@ namespace Service_Center_Backend.Services.Implements
 				_context.EquipmentHandoverReceipts.Remove(ehr);
 				await _context.SaveChangesAsync();
 
-				return new OkObjectResult(EquipmentHandoverReceiptMapper.ToDto(ehr));
+				//return new OkObjectResult(EquipmentHandoverReceiptMapper.ToDto(ehr));
+				return new OkResult();
 			}
 			catch (DbUpdateException ex)
 			{
@@ -65,6 +66,7 @@ namespace Service_Center_Backend.Services.Implements
 		public async Task<IActionResult> GetAllEHR()
 		{
 			var ehrs = await _context.EquipmentHandoverReceipts.ToListAsync();
+
 			if (ehrs is null || ehrs.Count == 0)
 			{
 				return new NotFoundObjectResult(new NotFoundExceptionHandler("Акты не найдены"));

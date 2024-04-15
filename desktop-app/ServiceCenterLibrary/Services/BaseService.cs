@@ -22,7 +22,7 @@ namespace ServiceCenterLibrary.Services
 				string message = await response.Content.ReadAsStringAsync();
 				throw new ExceptionHandler(message);
 			}
-
+			//var f = await response.Content.ReadAsStringAsync();
 			return await response.Content.ReadFromJsonAsync<T>();
 		}
 	}

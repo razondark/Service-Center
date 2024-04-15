@@ -28,15 +28,15 @@ namespace Service_Center_Backend.Web.Controllers
 		}
 
 		[HttpPost("create")]
-		public async Task<IActionResult> CreateEHR([FromBody] EquipmentHandoverReceiptDto deviceDto)
+		public async Task<IActionResult> CreateEHR([FromBody] EquipmentHandoverReceiptDto ehrDto)
 		{
-			return await _equipmentHandoverReceipt.CreateEHR(deviceDto);
+			return await _equipmentHandoverReceipt.CreateEHR(ehrDto);
 		}
 
 		[HttpPut("update")]
-		public async Task<IActionResult> UpdateEHR([FromBody] EquipmentHandoverReceiptDto deviceDto)
+		public async Task<IActionResult> UpdateEHR([FromBody] EquipmentHandoverReceiptDto ehrDto)
 		{
-			return await _equipmentHandoverReceipt.UpdateEHR(deviceDto);
+			return await _equipmentHandoverReceipt.UpdateEHR(ehrDto);
 		}
 
 		[HttpDelete("delete/{id}")]

@@ -34,6 +34,12 @@ namespace ServiceCenterLibrary.Services
 			return await HandleResponseAsync<IEnumerable<ClientDto>>(response);
 		}
 
+		public async Task<ClientDto?> GetByIdAsync(int id)
+		{
+			var response = await _httpClient.GetAsync($"{_config.GetClientByIdLink}/{id}");
+			return await HandleResponseAsync<ClientDto>(response);
+		}
+
 		public async Task<ClientDto?> CreateAsync(ClientDto client)
 		{
 			var json = JsonSerializer.Serialize(client);

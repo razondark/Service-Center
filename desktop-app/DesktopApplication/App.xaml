@@ -295,6 +295,17 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="gridInfoButton" TargetType="Button" BasedOn="{StaticResource gridEditButton}">
+            <Setter Property="Background" Value="Blue"/>
+            <Setter Property="BorderBrush" Value="DarkBlue"/>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#f44336"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="gridButtonIcon" TargetType="Icons:PackIconMaterial">
             <Setter Property="Width" Value="12"/>
             <Setter Property="Height" Value="12"/>

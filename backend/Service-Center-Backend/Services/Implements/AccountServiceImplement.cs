@@ -85,12 +85,16 @@ namespace Service_Center_Backend.Services.Implements
                 return new NotFoundObjectResult(new NotFoundExceptionHandler("Некорректный логин"));
             }
 
-            if (!account.Password.Equals(HashPassword(loginRequest.Password)))
-            {
-                return new NotFoundObjectResult(new NotFoundExceptionHandler("Некорректный пароль"));
-            }
+			//if (!account.Password.Equals(HashPassword(loginRequest.Password)))
+			//{
+			//    return new NotFoundObjectResult(new NotFoundExceptionHandler("Некорректный пароль"));
+			//}
+			if (!account.Password.Equals(loginRequest.Password))
+			{
+				return new NotFoundObjectResult(new NotFoundExceptionHandler("Некорректный пароль"));
+			}
 
-            return new OkObjectResult(account);
+			return new OkObjectResult(account);
         }
 
         public async Task<IActionResult> UpdateAccount(Account account)
